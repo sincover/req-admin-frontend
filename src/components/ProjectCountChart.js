@@ -1,6 +1,6 @@
 import { Bar } from 'react-chartjs-2';
 
-const ProjectCountChart = ({ data }) => {
+export const ProjectCountChart = ({ data }) => {
   const chartData = {
     labels: data.map(d => d.service),
     datasets: [{
