@@ -6,6 +6,8 @@ const options = [
   { value: 'Graphics', label: 'Graphics' },
 ];
 
-export const ServiceFilterDropdown = ({ onChange }) => (
+const ServiceFilterDropdown = ({ onChange }) => (
   <ReactSelect options={options} onChange={onChange} />
 );
+
+export { ServiceFilterDropdown };

@@ -1,33 +1,39 @@
-import React, { useState, useEffect } from 'react';
-import { countByService } from './services/api';
-import { ProjectCountChart } from './components/ProjectCountChart';
-import { ServiceFilterDropdown } from './components/ServiceFilterDropdown';
+import React from 'react';
+import { NavLink, Outlet } from 'react-router-dom';
+import './AdminDash.css';
 
-const Dashboard = () => {
-  const [selectedService, setSelectedService] = useState(null);
-  const [chartData, setChartData] = useState([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!selectedService) return;
-      const data = await countByService(selectedService.value);
-      setChartData([{ service: selectedService.label, count: data.total }]);
-    };
-
-    fetchData();
-  }, [selectedService]);
-
-  const handleServiceChange = selectedOption => {
-    setSelectedService(selectedOption);
-  };
-
+const AdminDashboard = () => {
   return (
-    <div>
-      <h1>Dashboard</h1>
-      <ServiceFilterDropdown onChange={handleServiceChange} />
-      {selectedService && <ProjectCountChart data={chartData} />}
+    <div className="dashboard">
+      <header className="dashboard-header">
+        <h1>CS Requisition Data Dash</h1>
+      </header>
+      
+      <div className="dashboard-tabs">
+        <NavLink to="/" activeClassName="active" exact className="tab">
+          General CS Req Data
+        </NavLink>
+        <NavLink to="/graphics" activeClassName="active" className="tab">
+          Graphics Req Data
+        </NavLink>
+        <NavLink to="/photo" activeClassName="active" className="tab">
+          Photo Req Data
+        </NavLink>
+        <NavLink to="/video" activeClassName="active" className="tab">
+          Video Req Data
+        </NavLink>
+      </div>
+
+      <main className="dashboard-content">
+        <Outlet />
+      </main>
+
+      <footer className="dashboard-footer">
+        {/* Footer content */}
+      </footer>
     </div>
   );
 };
 
-export default Dashboard;
+export default AdminDashboard;
+
