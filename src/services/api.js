@@ -10,11 +10,11 @@ export const countByService = async (service) => {
     return years;
   };
 
-  export const fetchAvailableMonths = async () => {
-    const response = await fetch(`${process.env.REACT_APP_API_URL}/submissions/available-months`);
-    const months = await response.json();
-    return months;
-  };
+  export const fetchAvailableMonthsForYear = async (year) => {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/submissions/available-months?year=${year}`);
+    const monthsData = await response.json();
+    return monthsData.find(entry => entry.year === year)?.months || [];
+  };  
 
   export const fetchTotalProjects = async (year, month) => {
     const response = await fetch(`${process.env.REACT_APP_API_URL}/submissions/totalProjects?year=${year}&month=${month}`);

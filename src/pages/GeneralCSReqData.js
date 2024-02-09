@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import YearMonthFilter from '../components/YearMonthFilter';
-import { fetchTotalProjects, fetchTotalReqs, fetchTotalBudgetEstimates } from '../services/api';
+import { fetchTotalProjects, fetchTotalReqs, fetchTotalBudgetEstimates, fetchAvailableYears, fetchAvailableMonthsForYear } from '../services/api';
 import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -51,6 +51,26 @@ const GeneralCSReqData = () => {
       
     }
   }, [selectedYear, selectedMonth]);
+
+  useEffect(() => {
+    fetchAvailableYears().then(years => {
+      // Assuming `years` is an array of year numbers [2018, 2019, 2020, ...]
+      const lastAvailableYear = years[years.length - 1]; // Get the last year as the default
+  
+      // Convert the year to the expected format for YearMonthFilter
+      const defaultYear = { value: lastAvailableYear.toString(), label: lastAvailableYear.toString() };
+  
+      setSelectedYear(defaultYear);
+      // After setting the default year, fetch available months for that year
+      fetchAvailableMonthsForYear(lastAvailableYear).then(months => {
+        if (months.length > 0) {
+          const lastAvailableMonth = months[months.length - 1]; // Assuming `months` is sorted
+          const defaultMonth = { value: lastAvailableMonth.toString(), label: lastAvailableMonth.toString() };
+          setSelectedMonth(defaultMonth);
+        }
+      });
+    });
+  }, []);
 
   useEffect(() => {
     // Ensure projectData is an array and contains data
