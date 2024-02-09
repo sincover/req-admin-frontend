@@ -39,7 +39,7 @@ const YearMonthFilter = ({ selectedYear, setSelectedYear, selectedMonth, setSele
         onChange={setSelectedYear}
         value={selectedYear}
         placeholder="Select Year"
-        isClearable
+        isClearable={false}
       />
       <Select
         options={monthsOptions}
