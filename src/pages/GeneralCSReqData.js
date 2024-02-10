@@ -131,7 +131,7 @@ const monthData = projectData.find(data => data.month === selectedMonth.value.to
 console.log("Final Data for Chart:", dataForChart);
   return (
     <div>
-      <h2>General CS Req Data</h2>
+      <h2></h2>
       <YearMonthFilter
         selectedYear={selectedYear}
         setSelectedYear={setSelectedYear}
@@ -140,9 +140,20 @@ console.log("Final Data for Chart:", dataForChart);
       />
       {/* Render charts here */}
       <div>
-        <h3>Total Projects by Service</h3>
+        <h3></h3>
         
-        {dataForChart.labels.length > 0 && <Bar data={dataForChart} />}
+        {dataForChart.labels.length > 0 && <Bar 
+        data={dataForChart}
+        style={{
+          alignContent: 'center',
+          width: '100%',
+          maxWidth: '1500px',
+          height: '300px',
+          maxHeight: '1200px',
+          margin: '0 auto',
+          
+        }} 
+        />}
       </div>
       {/* Similar setups for reqData and budgetData */}
     </div>

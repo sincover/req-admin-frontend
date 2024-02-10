@@ -4,6 +4,7 @@ import './AdminDash.css';
 
 const AdminDashboard = () => {
   return (
+    <div className='dashboard-container'>
     <div className="dashboard">
       <header className="dashboard-header">
         <h1>CS Requisition Data Dash</h1>
@@ -31,6 +32,7 @@ const AdminDashboard = () => {
       <footer className="dashboard-footer">
         {/* Footer content */}
       </footer>
+    </div>
     </div>
   );
 };
