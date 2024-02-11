@@ -33,3 +33,9 @@ export const countByService = async (service) => {
     const budget = await response.json();
     return budget;
   };
+
+  export const fetchTotalProjectsByYear = async (year) => {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/submissions/totalProjectsByYear?year=${year}`);
+    const projects = await response.json();
+    return projects;
+  }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import YearMonthFilter from '../components/YearMonthFilter';
-import { fetchTotalProjects, fetchTotalReqs, fetchTotalBudgetEstimates, fetchAvailableYears, fetchAvailableMonthsForYear } from '../services/api';
+import '../styles/GeneralCSReqData.css';
+import { fetchTotalProjects, fetchTotalReqs, fetchTotalBudgetEstimates, fetchAvailableYears, fetchAvailableMonthsForYear, fetchTotalProjectsByYear } from '../services/api';
 import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -26,7 +27,26 @@ const GeneralCSReqData = () => {
   const [dataForChart, setDataForChart] = useState({
     labels: [],
     datasets: []
-  });  
+      }
+  );
+  
+  const options = {
+    scales: {
+      x: {
+        display: true,
+      },
+      y: {
+        display: true,
+      },
+    },
+    plugins: {
+      legend: {
+        display: false,
+      },
+    },
+    maintainAspectRatio: true,
+  };
+
   const [selectedYear, setSelectedYear] = useState(null);
   const [selectedMonth, setSelectedMonth] = useState(null);
   const [projectData, setProjectData] = useState([]);
@@ -34,23 +54,23 @@ const GeneralCSReqData = () => {
   const [budgetData, setBudgetData] = useState([]);
 
   useEffect(() => {
-    if (selectedYear && selectedMonth) {
-      fetchTotalProjects(selectedYear.value, selectedMonth.value).then(data => {
-        const formattedData = Array.isArray(data) ? data : [data];
-        console.log("Setting projectData", formattedData);
-        setProjectData(formattedData);
-      });      
-      fetchTotalReqs(selectedYear.value, selectedMonth.value).then(data => {
-        // console.log("Total Reqs:", data);
-        setReqData(data);
-      });      
-      fetchTotalBudgetEstimates(selectedYear.value, selectedMonth.value).then(data => {
-        // console.log("Total Budget:", data);
-        setBudgetData(data);
-      });
-      
-    }
-  }, [selectedYear, selectedMonth]);
+    if (selectedYear) {
+      // If no month is selected, fetch yearly aggregated data
+      if (!selectedMonth) {
+          fetchTotalProjectsByYear(selectedYear.value).then(data => {
+              // console.log("Setting yearly projectData", data);
+              setProjectData(data);
+          });
+      } else {
+          // If a month is selected, fetch data for that specific month
+          fetchTotalProjects(selectedYear.value, selectedMonth.value).then(data => {
+              const formattedData = Array.isArray(data) ? data : [data];
+              // console.log("Setting monthly projectData", formattedData);
+              setProjectData(formattedData);
+          });
+      }
+  }
+}, [selectedYear, selectedMonth]);
 
   useEffect(() => {
     fetchAvailableYears().then(years => {
@@ -66,7 +86,8 @@ const GeneralCSReqData = () => {
         if (months.length > 0) {
           const lastAvailableMonth = months[months.length - 1]; // Assuming `months` is sorted
           const monthName = new Date(lastAvailableYear, lastAvailableMonth - 1).toLocaleString('default', { month: 'long' });
-          const defaultMonth = { value: lastAvailableMonth.toString(), label: monthName };
+          const defaultMonth = { value: lastAvailableMonth.toString().padStart(2, '0'),
+            label: monthName };
           setSelectedMonth(defaultMonth);
         }
       });
@@ -74,62 +95,41 @@ const GeneralCSReqData = () => {
   }, []);
 
   useEffect(() => {
-    // Ensure projectData is an array and contains data
     if (Array.isArray(projectData) && projectData.length > 0) {
-      let aggregatedData;
-  
-      if (!selectedMonth) {
-        // Aggregate data for the entire year
-        aggregatedData = projectData.reduce((acc, curr) => {
-          acc.totalGraphicsProjects += curr.totalGraphicsProjects;
-          acc.totalPhotoProjects += curr.totalPhotoProjects;
-          acc.totalVideoProjects += curr.totalVideoProjects;
-          acc.totalProjects += curr.totalProjects;
-          return acc;
-        }, { totalGraphicsProjects: 0, totalPhotoProjects: 0, totalVideoProjects: 0, totalProjects: 0 });
-      } else {
-        // Find data for the selected month
-const monthData = projectData.find(data => data.month === selectedMonth.value.toString().padStart(2, '0'));
-        aggregatedData = monthData ? { 
-          totalGraphicsProjects: monthData.totalGraphicsProjects,
-          totalPhotoProjects: monthData.totalPhotoProjects,
-          totalVideoProjects: monthData.totalVideoProjects,
-          totalProjects: monthData.totalProjects,
-        } : { totalGraphicsProjects: 0, totalPhotoProjects: 0, totalVideoProjects: 0, totalProjects: 0 }; // Default to 0 if month-specific data is not found
-      }
-  
-      const dataForChart = {
-        labels: ['Graphics', 'Photo', 'Video', 'Total'],
-        datasets: [{
-          label: selectedMonth ? `Total Projects for ${selectedMonth.label}/${selectedYear.label}` : `Total Projects for ${selectedYear.label}`,
-          data: [
-            aggregatedData.totalGraphicsProjects,
-            aggregatedData.totalPhotoProjects,
-            aggregatedData.totalVideoProjects,
-            aggregatedData.totalProjects,
-          ],
-          backgroundColor: [
-            'rgba(255, 99, 132, 0.2)',
-            'rgba(54, 162, 235, 0.2)',
-            'rgba(255, 206, 86, 0.2)',
-            'rgba(75, 192, 192, 0.2)',
-          ],
-          borderColor: [
-            'rgba(255, 99, 132, 1)',
-            'rgba(54, 162, 235, 1)',
-            'rgba(255, 206, 86, 1)',
-            'rgba(75, 192, 192, 1)',
-          ],
-          borderWidth: 1,
-        }],
-      };
-  
-      setDataForChart(dataForChart);
+        const data = projectData[0]; // Assuming the API returns an array with a single object for yearly data
+
+        const dataForChart = {
+            labels: ['Graphics', 'Photo', 'Video', 'Total'],
+            datasets: [{
+                label: selectedMonth ? `Total Projects for ${selectedMonth.label}/${selectedYear.label}` : `Total Projects for ${selectedYear.label}`,
+                data: [
+                    data.totalGraphicsProjects,
+                    data.totalPhotoProjects,
+                    data.totalVideoProjects,
+                    data.totalProjects,
+                ],
+                backgroundColor: [
+                    'rgba(8, 140, 255, 0.5)',
+                    'rgba(8, 140, 255, 0.5)',
+                    'rgba(8, 140, 255, 0.5)',
+                    'rgba(8, 140, 255, 1)',
+                ],
+                borderColor: [
+                    'rgba(8, 140, 255, 0.5)',
+                    'rgba(8, 140, 255, 0.2)',
+                    'rgba(8, 140, 255, 0.2)',
+                    'rgba(8, 140, 255, 1)',
+                ],
+                borderWidth: 1,
+            }],
+        };
+
+        setDataForChart(dataForChart);
     }
-  }, [projectData, selectedYear, selectedMonth]);
+}, [projectData, selectedYear, selectedMonth]);
   
 
-console.log("Final Data for Chart:", dataForChart);
+// console.log("data for overview:", projectData[0].totalGraphicsProjects, projectData[0].totalPhotoProjects, projectData[0].totalVideoProjects, projectData[0].totalProjects);
   return (
     <div>
       <h2></h2>
@@ -139,12 +139,39 @@ console.log("Final Data for Chart:", dataForChart);
         selectedMonth={selectedMonth}
         setSelectedMonth={setSelectedMonth}
       />
+      {/* Overview Section */}
+      <div className="overview-section">
+  {projectData.length > 0 ? ( // Ensure projectData is not empty
+    <>
+      <div className="overview-item">
+        <span className="overview-title">Graphics Projects</span>
+        <span className="overview-value">{projectData[0]?.totalGraphicsProjects || 'Loading...'}</span>
+      </div>
+      <div className="overview-item">
+        <span className="overview-title">Photo Projects</span>
+        <span className="overview-value">{projectData[0]?.totalPhotoProjects || 'Loading...'}</span>
+      </div>
+      <div className="overview-item">
+        <span className="overview-title">Video Projects</span>
+        <span className="overview-value">{projectData[0]?.totalVideoProjects || 'Loading...'}</span>
+      </div>
+      <div className="overview-item">
+        <span className="overview-title">Total Projects</span>
+        <span className="overview-value">{projectData[0]?.totalProjects || 'Loading...'}</span>
+      </div>
+    </>
+  ) : (
+    <p>Loading project data...</p> // Or any other placeholder you prefer
+  )}
+</div>
+  {/* Chart Section */}
       {/* Render charts here */}
       <div>
         <h3></h3>
         
         {dataForChart.labels.length > 0 && <Bar 
         data={dataForChart}
+        options={options}
         style={{
           alignContent: 'center',
           width: '100%',
@@ -154,7 +181,8 @@ console.log("Final Data for Chart:", dataForChart);
           margin: '0 auto',
           
         }} 
-        />}
+        />
+        }
       </div>
       {/* Similar setups for reqData and budgetData */}
     </div>
