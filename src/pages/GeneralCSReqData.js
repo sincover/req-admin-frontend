@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import YearMonthFilter from '../components/YearMonthFilter';
 import '../styles/GeneralCSReqData.css';
-import { fetchTotalProjects, fetchTotalReqs, fetchTotalBudgetEstimates, fetchAvailableYears, fetchAvailableMonthsForYear, fetchTotalProjectsByYear } from '../services/api';
+import { fetchTotalProjects, fetchTotalReqs, fetchTopAgencies, fetchTopAgenciesByYear,
+  fetchAvailableYears, fetchAvailableMonthsForYear, fetchTotalProjectsByYear, 
+  fetchTotalReqsByYear } from '../services/api';
 import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -24,11 +26,27 @@ ChartJS.register(
 
 const GeneralCSReqData = () => {
 
-  const [dataForChart, setDataForChart] = useState({
+  const [dataForAllProjectsChart, setdataForAllProjectsChart] = useState({
     labels: [],
     datasets: []
       }
   );
+
+  const [dataForAllReqsChart, setdataForAllReqsChart] = useState({
+    labels: [],
+    datasets: []
+      }
+  );
+
+  const [dataForTopAgenciesChart, setdataForTopAgenciesChart] = useState({
+    labels: [],
+    datasets: [{
+      data: [],
+      backgroundColor: [],
+      borderColor: [],
+      borderWidth: 1,
+    }]
+  });
   
   const options = {
     scales: {
@@ -51,54 +69,94 @@ const GeneralCSReqData = () => {
   const [selectedMonth, setSelectedMonth] = useState(null);
   const [projectData, setProjectData] = useState([]);
   const [reqData, setReqData] = useState([]);
+  const [agencyData, setAgencyData] = useState([]);
   const [budgetData, setBudgetData] = useState([]);
+  const handleSetSelectedYear = useCallback((year) => {
+    setSelectedYear(year);
+  }, []);
+
+  const handleSetSelectedMonth = useCallback((month) => {
+    setSelectedMonth(month);
+  }, []);
 
   useEffect(() => {
     if (selectedYear) {
       // If no month is selected, fetch yearly aggregated data
       if (!selectedMonth) {
-          fetchTotalProjectsByYear(selectedYear.value).then(data => {
-              // console.log("Setting yearly projectData", data);
-              setProjectData(data);
+          fetchTotalProjectsByYear(selectedYear.value).then(projectData => {
+              // console.log("Setting yearly projectData", projectData);
+              setProjectData(projectData);
           });
+          fetchTotalReqsByYear(selectedYear.value).then(reqData => {
+            //console.log("Setting yearly reqData", reqData);
+            setReqData(reqData);
+        });
+          fetchTopAgenciesByYear(selectedYear.value).then(agencyData => {
+              // console.log("Setting yearly agencyData", agencyData);
+              setAgencyData(agencyData);
+          })
       } else {
           // If a month is selected, fetch data for that specific month
           fetchTotalProjects(selectedYear.value, selectedMonth.value).then(data => {
-              const formattedData = Array.isArray(data) ? data : [data];
-              // console.log("Setting monthly projectData", formattedData);
-              setProjectData(formattedData);
+              const formattedProjectData = Array.isArray(data) ? data : [data];
+              // console.log("Setting monthly projectData", formattedProjectData);
+              setProjectData(formattedProjectData);
           });
+          fetchTotalReqs(selectedYear.value, selectedMonth.value).then(data => {
+            const formattedReqData = Array.isArray(data) ? data : [data];
+            // console.log("Setting monthly reqData", formattedReqData);
+            setReqData(formattedReqData);
+        });
+          fetchTopAgencies(selectedYear.value, selectedMonth.value).then(data => {
+              const formattedAgencyData = Array.isArray(data) ? data : [data];
+            // console.log("Setting monthly agencyData", formattedAgencyData);
+            setAgencyData(formattedAgencyData);
+        });
       }
   }
 }, [selectedYear, selectedMonth]);
 
+  // useEffect(() => {
+  //   fetchAvailableYears().then(years => {
+  //     // Assuming `years` is an array of year numbers [2018, 2019, 2020, ...]
+  //     const lastAvailableYear = years[years.length - 1]; // Get the last year as the default
+  
+  //     // Convert the year to the expected format for YearMonthFilter
+  //     const defaultYear = { value: lastAvailableYear.toString(), label: lastAvailableYear.toString() };
+  
+  //     setSelectedYear(defaultYear);
+  //     // After setting the default year, fetch available months for that year
+  //     fetchAvailableMonthsForYear(lastAvailableYear).then(months => {
+  //       if (months.length > 0) {
+  //         const lastAvailableMonth = months[months.length - 1]; // Assuming `months` is sorted
+  //         const monthName = new Date(lastAvailableYear, lastAvailableMonth - 1).toLocaleString('default', { month: 'long' });
+  //         const defaultMonth = { value: lastAvailableMonth.toString().padStart(2, '0'),
+  //           label: monthName };
+  //         setSelectedMonth(defaultMonth);
+  //       }
+  //     });
+  //   });
+  // }, []);
+
   useEffect(() => {
-    fetchAvailableYears().then(years => {
-      // Assuming `years` is an array of year numbers [2018, 2019, 2020, ...]
-      const lastAvailableYear = years[years.length - 1]; // Get the last year as the default
-  
-      // Convert the year to the expected format for YearMonthFilter
-      const defaultYear = { value: lastAvailableYear.toString(), label: lastAvailableYear.toString() };
-  
-      setSelectedYear(defaultYear);
-      // After setting the default year, fetch available months for that year
-      fetchAvailableMonthsForYear(lastAvailableYear).then(months => {
+    // This effect depends on selectedYear, so it runs after selectedYear is set
+    if (selectedYear && selectedYear.value) {
+      fetchAvailableMonthsForYear(selectedYear.value).then(months => {
         if (months.length > 0) {
-          const lastAvailableMonth = months[months.length - 1]; // Assuming `months` is sorted
-          const monthName = new Date(lastAvailableYear, lastAvailableMonth - 1).toLocaleString('default', { month: 'long' });
-          const defaultMonth = { value: lastAvailableMonth.toString().padStart(2, '0'),
-            label: monthName };
-          setSelectedMonth(defaultMonth);
+          const lastAvailableMonth = months[months.length - 1];
+          const monthName = new Date(selectedYear.value, lastAvailableMonth - 1).toLocaleString('default', { month: 'long' });
+          const defaultMonth = { value: lastAvailableMonth.toString().padStart(2, '0'), label: monthName };
+          setSelectedMonth(defaultMonth); // Then set the month
         }
       });
-    });
-  }, []);
+    }
+  }, [selectedYear]);
 
   useEffect(() => {
     if (Array.isArray(projectData) && projectData.length > 0) {
         const data = projectData[0]; // Assuming the API returns an array with a single object for yearly data
-
-        const dataForChart = {
+        
+        const dataForAllProjectsChart = {
             labels: ['Graphics', 'Photo', 'Video', 'Total'],
             datasets: [{
                 label: selectedMonth ? `Total Projects for ${selectedMonth.label}/${selectedYear.label}` : `Total Projects for ${selectedYear.label}`,
@@ -124,20 +182,71 @@ const GeneralCSReqData = () => {
             }],
         };
 
-        setDataForChart(dataForChart);
+        setdataForAllProjectsChart(dataForAllProjectsChart);
     }
 }, [projectData, selectedYear, selectedMonth]);
-  
 
+useEffect(() => {
+  if (Array.isArray(reqData) && reqData.length > 0) {
+      const data = reqData[0]; // Assuming the API returns an array with a single object for yearly data
+
+      const dataForAllReqsChart = {
+          labels: ['Reqs'],
+          datasets: [{
+              label: selectedMonth ? `Total Reqs for ${selectedMonth.label}/${selectedYear.label}` : `Total Reqs for ${selectedYear.label}`,
+              data: [
+                  data.reqs,
+              ],
+              backgroundColor: [
+                  'rgba(8, 140, 255, 0.5)',
+              ],
+              borderColor: [
+                  'rgba(8, 140, 255, 0.5)',
+              ],
+              borderWidth: 1,
+          }],
+      };
+
+      setdataForAllReqsChart(dataForAllReqsChart);
+  }
+}, [reqData, selectedYear, selectedMonth]);
+
+useEffect(() => {
+  if (Array.isArray(agencyData) && agencyData.length > 0) {
+    const dynamicLabels = Object.keys(agencyData[0])
+      .filter(key => key !== 'year' && key !== 'month')
+      .map(label => label.toUpperCase());
+
+    const dynamicData = dynamicLabels.map(label => {
+      const originalKey = label.toLowerCase(); // Convert back to original key
+      return agencyData[0][originalKey];
+    });
+
+    const dataForTopAgenciesChart = {
+        labels: dynamicLabels,
+        datasets: [{
+            label: selectedMonth ? `Agency Data for ${selectedMonth.label}/${selectedYear.label}` : `Agency Data for ${selectedYear.label}`,
+            data: dynamicData,
+            backgroundColor: 'rgba(8, 140, 255, 0.5)',
+            borderColor: 'rgba(8, 140, 255, 0.5)',
+            borderWidth: 1,
+        }]
+    };
+
+    setdataForTopAgenciesChart(dataForTopAgenciesChart);
+  }
+}, [agencyData, selectedYear, selectedMonth]);
+// console.log("overview data:", dataForTopAgenciesChart);
+// console.log("Agency data:", agencyData);
 // console.log("data for overview:", projectData[0].totalGraphicsProjects, projectData[0].totalPhotoProjects, projectData[0].totalVideoProjects, projectData[0].totalProjects);
   return (
     <div>
       <h2></h2>
       <YearMonthFilter
         selectedYear={selectedYear}
-        setSelectedYear={setSelectedYear}
+        setSelectedYear={handleSetSelectedYear}
         selectedMonth={selectedMonth}
-        setSelectedMonth={setSelectedMonth}
+        setSelectedMonth={handleSetSelectedMonth}
       />
       {/* Overview Section */}
       <div className="overview-section">
@@ -169,8 +278,8 @@ const GeneralCSReqData = () => {
       <div>
         <h3></h3>
         
-        {dataForChart.labels.length > 0 && <Bar 
-        data={dataForChart}
+        {dataForAllProjectsChart.labels.length > 0 && <Bar 
+        data={dataForAllProjectsChart}
         options={options}
         style={{
           alignContent: 'center',
@@ -185,6 +294,65 @@ const GeneralCSReqData = () => {
         }
       </div>
       {/* Similar setups for reqData and budgetData */}
+      <div className="overview-section">
+  {reqData.length > 0 ? ( 
+    <>
+      <div className="overview-item">
+        <span className="overview-title">Total Reqs Submitted</span>
+        <span className="overview-value">{reqData[0]?.reqs || 'Loading...'}</span>
+      </div>
+    </>
+  ) : (
+    <p>Loading req data...</p> // Or any other placeholder you prefer
+  )}
+</div>
+{/* <div>
+        <h3></h3>
+        
+        {dataForAllReqsChart.labels.length > 0 && <Bar 
+        data={dataForAllReqsChart}
+        options={options}
+        style={{
+          alignContent: 'center',
+          width: '100%',
+          maxWidth: '1500px',
+          height: '300px',
+          maxHeight: '1200px',
+          margin: '0 auto',
+          
+        }} 
+        />
+        }
+      </div> */}
+      <div> <span className="overview-label">Top {dataForTopAgenciesChart.labels.length} agencies by reqs submitted</span></div>
+      { <div className="overview-section">
+  {dataForTopAgenciesChart.datasets[0].data.length > 0 && agencyData.length > 0 ? (
+    <>
+      <div className="overview-item">
+        <span className="overview-title">{dataForTopAgenciesChart.labels[0]}</span>
+        <span className="overview-value">{dataForTopAgenciesChart.datasets[0].data[0] || ''}</span>
+      </div>
+      <div className="overview-item">
+        <span className="overview-title">{dataForTopAgenciesChart.labels[1]}</span>
+        <span className="overview-value">{dataForTopAgenciesChart.datasets[0].data[1] || ''}</span>
+      </div>
+      <div className="overview-item">
+        <span className="overview-title">{dataForTopAgenciesChart.labels[2]}</span>
+        <span className="overview-value">{dataForTopAgenciesChart.datasets[0].data[2] || ''}</span>
+      </div>
+      <div className="overview-item">
+        <span className="overview-title">{dataForTopAgenciesChart.labels[3]}</span>
+        <span className="overview-value">{dataForTopAgenciesChart.datasets[0].data[3] || ''}</span>
+      </div>
+      <div className="overview-item">
+        <span className="overview-title">{dataForTopAgenciesChart.labels[4]}</span>
+        <span className="overview-value">{dataForTopAgenciesChart.datasets[0].data[4] || ''}</span>
+      </div>
+    </>
+  ) : (
+    <p>Loading acency data...</p> // Or any other placeholder you prefer
+  )}
+</div> }
     </div>
   );
 };

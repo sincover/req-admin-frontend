@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Select from 'react-select';
-import { fetchAvailableYears } from '../services/api';
+import { fetchAvailableYears, fetchAvailableMonthsForYear } from '../services/api';
 
 const customTheme = (theme) => ({
   ...theme,
@@ -41,40 +41,54 @@ const customStyles = {
   // Add more customization as needed for other parts
 };
 
-const YearMonthFilter = ({ selectedYear, setSelectedYear, selectedMonth, setSelectedMonth }) => {
+const YearMonthFilter = React.memo(({ selectedYear, setSelectedYear, selectedMonth, setSelectedMonth }) => {
   const [yearsOptions, setYearsOptions] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [monthsOptions, setMonthsOptions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
+  // console.log("Initial selected year:", selectedYear);
+  
+  useEffect(() => {
+    fetchAvailableYears().then(years => {
+      const options = years.map(year => ({ value: year, label: `${year}` }));
+      setYearsOptions(options);
+      // console.log("Updated yearsOptions", options);
+      // Automatically select the latest year if no year is selected
+      if (!selectedYear || !selectedYear.value) {
+        const latestYear = options[options.length - 1]; // Assumes the latest year is the last one in the array
+        setSelectedYear(latestYear);
+        fetchMonthsForYear(latestYear.value); // Fetch months for the latest year
+      } else {
+        setLoading(false);
+      }
+    }).catch(error => {
+      // console.error("Failed to fetch years:", error);
+      setLoading(false);
+    });
+  }, [setSelectedYear]);
+
+  const fetchMonthsForYear = (year) => {
+    fetchAvailableMonthsForYear(year).then(months => {
+      // console.log("Months for ${year}:", months);
+      const options = months.map(month => {
+        const monthName = new Date(year, month - 1).toLocaleString('default', { month: 'long' });
+        return { value: month, label: monthName };
+      });
+      setMonthsOptions(options);
+      // console.log("Updated monthsOptions", options);
+      setLoading(false);
+    }).catch(error => {
+      // console.error("Failed to fetch months:", error);
+      setLoading(false);
+    });
+  };
 
   useEffect(() => {
-    const cachedYears = localStorage.getItem('availableYears');
-    if (cachedYears) {
-      setYearsOptions(JSON.parse(cachedYears));
-    } else {
-      setLoading(true);
-      fetchAvailableYears().then(years => {
-        const options = years.map(year => ({ value: year, label: `${year}` }));
-        setYearsOptions(options);
-        localStorage.setItem('availableYears', JSON.stringify(options));
-        setLoading(false);
-      }).catch(() => setLoading(false)); // Ensure loading is set to false even if the request fails
+    // console.log("Selected year changed:", selectedYear);
+    if (selectedYear && selectedYear.value) {
+      fetchMonthsForYear(selectedYear.value);
     }
-  }, []);
-
-  const monthsOptions = [
-    { value: 1, label: 'January' },
-    { value: 2, label: 'February' },
-    { value: 3, label: 'March' },
-    { value: 4, label: 'April' },
-    { value: 5, label: 'May' },
-    { value: 6, label: 'June' },
-    { value: 7, label: 'July' },
-    { value: 8, label: 'August' },
-    { value: 9, label: 'September' },
-    { value: 10, label: 'October' },
-    { value: 11, label: 'November' },
-    { value: 12, label: 'December' },
-    // Add all months
-  ];
+  }, [selectedYear]);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -86,7 +100,11 @@ const YearMonthFilter = ({ selectedYear, setSelectedYear, selectedMonth, setSele
         styles={customStyles}
         theme={customTheme}
         options={yearsOptions}
-        onChange={setSelectedYear}
+        onChange={(year) => {
+          setSelectedYear(year);
+          // Optionally clear selectedMonth when changing years
+          setSelectedMonth(null);
+        }}
         value={selectedYear}
         placeholder="Select Year"
         isClearable={false}
@@ -99,9 +117,10 @@ const YearMonthFilter = ({ selectedYear, setSelectedYear, selectedMonth, setSele
         value={selectedMonth}
         placeholder="Select Month"
         isClearable
+        isDisabled={!selectedYear}
       />
     </div>
   );
-};
+});
 
 export default YearMonthFilter;
