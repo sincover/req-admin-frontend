@@ -65,7 +65,8 @@ const GeneralCSReqData = () => {
       fetchAvailableMonthsForYear(lastAvailableYear).then(months => {
         if (months.length > 0) {
           const lastAvailableMonth = months[months.length - 1]; // Assuming `months` is sorted
-          const defaultMonth = { value: lastAvailableMonth.toString(), label: lastAvailableMonth.toString() };
+          const monthName = new Date(lastAvailableYear, lastAvailableMonth - 1).toLocaleString('default', { month: 'long' });
+          const defaultMonth = { value: lastAvailableMonth.toString(), label: monthName };
           setSelectedMonth(defaultMonth);
         }
       });
