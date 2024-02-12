@@ -1,13 +1,13 @@
 import React from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
-import './AdminDash.css';
+import './styles/styles.css';
 
 const AdminDashboard = () => {
   return (
     <div className='dashboard-container'>
     <div className="dashboard">
       <header className="dashboard-header">
-        <h1>CS Requisition Data Dash</h1>
+        <h2>CS Requisition Data Dash</h2>
       </header>
       
       <div className="dashboard-tabs">

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import YearMonthFilter from '../components/YearMonthFilter';
-import '../styles/GeneralCSReqData.css';
+import '../styles/styles.css';
 import { fetchTotalProjects, fetchTotalReqs, fetchTopAgencies, fetchTopAgenciesByYear,
   fetchAvailableYears, fetchAvailableMonthsForYear, fetchTotalProjectsByYear, 
   fetchTotalReqsByYear } from '../services/api';
@@ -48,7 +48,7 @@ const GeneralCSReqData = () => {
     }]
   });
   
-  const options = {
+  const chartOptions = {
     scales: {
       x: {
         display: true,
@@ -62,7 +62,7 @@ const GeneralCSReqData = () => {
         display: false,
       },
     },
-    maintainAspectRatio: true,
+    maintainAspectRatio: false,
   };
 
   const [selectedYear, setSelectedYear] = useState(null);
@@ -300,12 +300,12 @@ const filteredChartData = preprocessChartData(dataForAllProjectsChart);
         
         {filteredChartData.labels.length > 0 && <Bar 
         data={filteredChartData}
-        options={options}
+        options={chartOptions}
         style={{
           alignContent: 'center',
           width: '100%',
           maxWidth: '1500px',
-          height: '300px',
+          height: '100%',
           maxHeight: '1200px',
           margin: '0 auto',
           

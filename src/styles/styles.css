@@ -1,0 +1,121 @@
+:root {
+    --dolBlue-color: #088cff;
+    --headerGrey-color: #171819;
+    --bgGrey-color: #0C0C0D;
+    --textGrey-color: #A2A3A3;
+}
+
+
+/* Lv2 - Dashboard Styles - AdminDash */
+.dashboard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: var(--bgGrey-color);
+    height: 100vh;
+    padding: 10px;
+  }
+  
+  .dashboard-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bgGrey-color);
+    width: 100%;
+    max-height: 10%;
+    color: white;
+  }
+  
+  .dashboard-tabs {
+    display: flex;
+    justify-content: space-evenly;
+    background: var(--bgGrey-color);
+    text-align: center;
+    font-size: calc(10px + 2vmin);
+    padding: 0.5rem 0;
+  }
+  
+  .tab {
+    color: white;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    border-bottom: 3px solid transparent; /* No border by default */
+  }
+  
+  .tab:hover {
+    background: #222; /* Slight shade on hover */
+  }
+  
+  .active {
+    border-bottom: 10px solid var(--dolBlue-color); /* Active tab has a distinct border */
+  }
+  
+  .dashboard-content {
+    display: flex;
+    padding: 10px;
+    flex-direction: column;
+    max-width: 100%;
+    background-color: var(--bgGrey-color);
+    color: var(--textGrey-color);
+
+  }
+  @media only screen and (max-width: 768px) {
+    .dashboard-content {
+      max-width: 80%;
+    }
+  }
+  
+  .dashboard-footer {
+    padding: 10%;
+  }
+  
+  /* Lv3 - Content page Styles */
+  .overview-section {
+    display: flex;
+    justify-content: space-evenly;
+    padding: 10px;
+    background-color: var(--headerGrey-color); /* Light grey background */
+    border-radius: 8px;
+    margin: 20px 0; /* Add some margin around the overview section */
+  }
+  
+  .overview-item {
+    text-align: center;
+    align-items: center;
+    padding: 5px;
+  }
+  @media only screen and (max-width: 768px) {
+    .overview-item {
+      padding: 5px;
+    }
+  }
+  
+  .overview-title {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: var(--textGrey-color);
+    font-size: medium;
+  }
+  @media only screen and (max-width: 768px) {
+    .overview-title {
+      font-size: small;
+    }
+  }
+  
+  .overview-value {
+    font-size: 20px;
+    color: var(--textGrey-color); 
+  }
+  
+  .overview-label {
+    /* background-color: #171819; */
+    padding-top: 10px;
+    display: flex;
+    font-size: medium;
+    font-weight: bold;
+    color: var(--textGrey-color);
+    align-content: center;
+    justify-content: center;
+    text-align: center;
+  }
