@@ -10,6 +10,7 @@
   .overview-item {
     text-align: center;
     align-items: center;
+    padding: 5px;
   }
   @media only screen and (max-width: 768px) {
     .overview-item {

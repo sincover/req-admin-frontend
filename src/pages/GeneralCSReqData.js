@@ -116,41 +116,20 @@ const GeneralCSReqData = () => {
   }
 }, [selectedYear, selectedMonth]);
 
+  //!! Optional: Default to the latest available months for the selected year
   // useEffect(() => {
-  //   fetchAvailableYears().then(years => {
-  //     // Assuming `years` is an array of year numbers [2018, 2019, 2020, ...]
-  //     const lastAvailableYear = years[years.length - 1]; // Get the last year as the default
-  
-  //     // Convert the year to the expected format for YearMonthFilter
-  //     const defaultYear = { value: lastAvailableYear.toString(), label: lastAvailableYear.toString() };
-  
-  //     setSelectedYear(defaultYear);
-  //     // After setting the default year, fetch available months for that year
-  //     fetchAvailableMonthsForYear(lastAvailableYear).then(months => {
+  //   // This effect depends on selectedYear, so it runs after selectedYear is set
+  //   if (selectedYear && selectedYear.value) {
+  //     fetchAvailableMonthsForYear(selectedYear.value).then(months => {
   //       if (months.length > 0) {
-  //         const lastAvailableMonth = months[months.length - 1]; // Assuming `months` is sorted
-  //         const monthName = new Date(lastAvailableYear, lastAvailableMonth - 1).toLocaleString('default', { month: 'long' });
-  //         const defaultMonth = { value: lastAvailableMonth.toString().padStart(2, '0'),
-  //           label: monthName };
-  //         setSelectedMonth(defaultMonth);
+  //         const lastAvailableMonth = months[months.length - 1];
+  //         const monthName = new Date(selectedYear.value, lastAvailableMonth - 1).toLocaleString('default', { month: 'long' });
+  //         const defaultMonth = { value: lastAvailableMonth.toString().padStart(2, '0'), label: monthName };
+  //         setSelectedMonth(defaultMonth); // Then set the month
   //       }
   //     });
-  //   });
-  // }, []);
-
-  useEffect(() => {
-    // This effect depends on selectedYear, so it runs after selectedYear is set
-    if (selectedYear && selectedYear.value) {
-      fetchAvailableMonthsForYear(selectedYear.value).then(months => {
-        if (months.length > 0) {
-          const lastAvailableMonth = months[months.length - 1];
-          const monthName = new Date(selectedYear.value, lastAvailableMonth - 1).toLocaleString('default', { month: 'long' });
-          const defaultMonth = { value: lastAvailableMonth.toString().padStart(2, '0'), label: monthName };
-          setSelectedMonth(defaultMonth); // Then set the month
-        }
-      });
-    }
-  }, [selectedYear]);
+  //   }
+  // }, [selectedYear]);
 
   useEffect(() => {
     if (Array.isArray(projectData) && projectData.length > 0) {
@@ -239,6 +218,52 @@ useEffect(() => {
 // console.log("overview data:", dataForTopAgenciesChart);
 // console.log("Agency data:", agencyData);
 // console.log("data for overview:", projectData[0].totalGraphicsProjects, projectData[0].totalPhotoProjects, projectData[0].totalVideoProjects, projectData[0].totalProjects);
+
+// Preprocess data to exclude labels and data points with values <= 0 or null
+const preprocessChartData = (chartData) => {
+  // Check if datasets array exists and has at least one dataset
+  if (!chartData.datasets || chartData.datasets.length === 0) {
+    // Return chartData as is or handle this case as needed
+    return chartData;
+  }
+
+  // Proceed assuming the first dataset exists
+  const dataset = chartData.datasets[0];
+  
+  // Ensure dataset.data is defined
+  if (!dataset.data) {
+    // Return chartData as is or handle this case as needed
+    return chartData;
+  }
+
+  const filteredLabels = [];
+  const filteredData = [];
+
+  dataset.data.forEach((value, index) => {
+    if (value > 0) { // Check if the value is greater than 0
+      filteredData.push(value);
+      filteredLabels.push(chartData.labels[index]); // Keep the label for this value
+    }
+  });
+
+  // Create a new dataset with the filtered data
+  const newDataset = {
+    ...dataset,
+    data: filteredData,
+  };
+
+  // Return new chart data with filtered labels and dataset
+  return {
+    ...chartData,
+    labels: filteredLabels,
+    datasets: [newDataset],
+  };
+};
+
+
+// Usage within your component:
+const filteredChartData = preprocessChartData(dataForAllProjectsChart);
+
   return (
     <div>
       <h2></h2>
@@ -250,27 +275,22 @@ useEffect(() => {
       />
       {/* Overview Section */}
       <div className="overview-section">
-  {projectData.length > 0 ? ( // Ensure projectData is not empty
-    <>
-      <div className="overview-item">
-        <span className="overview-title">Graphics Projects</span>
-        <span className="overview-value">{projectData[0]?.totalGraphicsProjects || 'Loading...'}</span>
+  {projectData.length > 0 ? (
+    Object.entries({
+      'Graphics Projects': projectData[0]?.totalGraphicsProjects,
+      'Photo Projects': projectData[0]?.totalPhotoProjects,
+      'Video Projects': projectData[0]?.totalVideoProjects,
+      'Total Projects': projectData[0]?.totalProjects,
+    })
+    .filter(([_, value]) => value > 0)
+    .map(([title, value]) => (
+      <div key={title} className="overview-item">
+        <span className="overview-title">{title}</span>
+        <span className="overview-value">{value}</span>
       </div>
-      <div className="overview-item">
-        <span className="overview-title">Photo Projects</span>
-        <span className="overview-value">{projectData[0]?.totalPhotoProjects || 'Loading...'}</span>
-      </div>
-      <div className="overview-item">
-        <span className="overview-title">Video Projects</span>
-        <span className="overview-value">{projectData[0]?.totalVideoProjects || 'Loading...'}</span>
-      </div>
-      <div className="overview-item">
-        <span className="overview-title">Total Projects</span>
-        <span className="overview-value">{projectData[0]?.totalProjects || 'Loading...'}</span>
-      </div>
-    </>
+    ))
   ) : (
-    <p>Loading project data...</p> // Or any other placeholder you prefer
+    <p>Loading project data...</p> // Placeholder for empty or loading data
   )}
 </div>
   {/* Chart Section */}
@@ -278,8 +298,8 @@ useEffect(() => {
       <div>
         <h3></h3>
         
-        {dataForAllProjectsChart.labels.length > 0 && <Bar 
-        data={dataForAllProjectsChart}
+        {filteredChartData.labels.length > 0 && <Bar 
+        data={filteredChartData}
         options={options}
         style={{
           alignContent: 'center',
@@ -306,53 +326,19 @@ useEffect(() => {
     <p>Loading req data...</p> // Or any other placeholder you prefer
   )}
 </div>
-{/* <div>
-        <h3></h3>
-        
-        {dataForAllReqsChart.labels.length > 0 && <Bar 
-        data={dataForAllReqsChart}
-        options={options}
-        style={{
-          alignContent: 'center',
-          width: '100%',
-          maxWidth: '1500px',
-          height: '300px',
-          maxHeight: '1200px',
-          margin: '0 auto',
-          
-        }} 
-        />
-        }
-      </div> */}
       <div> <span className="overview-label">Top {dataForTopAgenciesChart.labels.length} agencies by reqs submitted</span></div>
-      { <div className="overview-section">
-  {dataForTopAgenciesChart.datasets[0].data.length > 0 && agencyData.length > 0 ? (
-    <>
-      <div className="overview-item">
-        <span className="overview-title">{dataForTopAgenciesChart.labels[0]}</span>
-        <span className="overview-value">{dataForTopAgenciesChart.datasets[0].data[0] || ''}</span>
+      <div className="overview-section">
+  {dataForTopAgenciesChart.datasets.length > 0 && dataForTopAgenciesChart.datasets[0].data.length > 0 && agencyData.length > 0 ? (
+    dataForTopAgenciesChart.labels.map((label, index) => (
+      <div key={label} className="overview-item">
+        <span className="overview-title">{label}</span>
+        <span className="overview-value">{dataForTopAgenciesChart.datasets[0].data[index] || ''}</span>
       </div>
-      <div className="overview-item">
-        <span className="overview-title">{dataForTopAgenciesChart.labels[1]}</span>
-        <span className="overview-value">{dataForTopAgenciesChart.datasets[0].data[1] || ''}</span>
-      </div>
-      <div className="overview-item">
-        <span className="overview-title">{dataForTopAgenciesChart.labels[2]}</span>
-        <span className="overview-value">{dataForTopAgenciesChart.datasets[0].data[2] || ''}</span>
-      </div>
-      <div className="overview-item">
-        <span className="overview-title">{dataForTopAgenciesChart.labels[3]}</span>
-        <span className="overview-value">{dataForTopAgenciesChart.datasets[0].data[3] || ''}</span>
-      </div>
-      <div className="overview-item">
-        <span className="overview-title">{dataForTopAgenciesChart.labels[4]}</span>
-        <span className="overview-value">{dataForTopAgenciesChart.datasets[0].data[4] || ''}</span>
-      </div>
-    </>
+    ))
   ) : (
-    <p>Loading acency data...</p> // Or any other placeholder you prefer
+    <p>Loading agency data...</p> // Or any other placeholder you prefer
   )}
-</div> }
+</div>
     </div>
   );
 };
