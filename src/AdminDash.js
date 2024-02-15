@@ -11,16 +11,16 @@ const AdminDashboard = () => {
         </header>
 
         <div className="dashboard-tabs">
-          <NavLink to="/" activeClassName="active" exact className="tab">
+          <NavLink to="/" activeclassname="active" exact="true" className="tab">
             General CS Req Data
           </NavLink>
-          <NavLink to="/graphics" activeClassName="active" className="tab">
+          <NavLink to="/graphics" activeclassname="active" className="tab">
             Graphics Req Data
           </NavLink>
-          <NavLink to="/photo" activeClassName="active" className="tab">
+          <NavLink to="/photo" activeclassname="active" className="tab">
             Photo Req Data
           </NavLink>
-          <NavLink to="/video" activeClassName="active" className="tab">
+          <NavLink to="/video" activeclassname="active" className="tab">
             Video Req Data
           </NavLink>
         </div>

@@ -6,8 +6,6 @@ import {
   fetchTotalReqs,
   fetchTopAgencies,
   fetchTopAgenciesByYear,
-  fetchAvailableYears,
-  fetchAvailableMonthsForYear,
   fetchTotalProjectsByYear,
   fetchTotalReqsByYear,
 } from "../services/api";
@@ -76,7 +74,6 @@ const GeneralCSReqData = () => {
   const [projectData, setProjectData] = useState([]);
   const [reqData, setReqData] = useState([]);
   const [agencyData, setAgencyData] = useState([]);
-  const [budgetData, setBudgetData] = useState([]);
   const handleSetSelectedYear = useCallback((year) => {
     setSelectedYear(year);
   }, []);
