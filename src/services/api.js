@@ -1,6 +1,6 @@
 export const countByService = async (service) => {
   const response = await fetch(
-    `${process.env.REACT_APP_API_URL}/submissions/countByService?service=${service}`
+    `${process.env.REACT_APP_LOCALIP}/submissions/countByService?service=${service}`
   );
   const data = await response.json();
   return data;
@@ -8,7 +8,7 @@ export const countByService = async (service) => {
 
 export const fetchAvailableYears = async () => {
   const response = await fetch(
-    `${process.env.REACT_APP_API_URL}/submissions/available-years`
+    `${process.env.REACT_APP_LOCALIP}/submissions/available-years`
   );
   const years = await response.json();
   return years;
@@ -16,7 +16,7 @@ export const fetchAvailableYears = async () => {
 
 export const fetchAvailableMonthsForYear = async (year) => {
   const response = await fetch(
-    `${process.env.REACT_APP_API_URL}/submissions/available-months?year=${year}`
+    `${process.env.REACT_APP_LOCALIP}/submissions/available-months?year=${year}`
   );
   const monthsData = await response.json();
   return monthsData.find((entry) => entry.year === year)?.months || [];
@@ -24,7 +24,7 @@ export const fetchAvailableMonthsForYear = async (year) => {
 
 export const fetchTotalProjects = async (year, month) => {
   const response = await fetch(
-    `${process.env.REACT_APP_API_URL}/submissions/totalProjects?year=${year}&month=${month}`
+    `${process.env.REACT_APP_LOCALIP}/submissions/totalProjects?year=${year}&month=${month}`
   );
   const projects = await response.json();
   return projects;
@@ -32,7 +32,7 @@ export const fetchTotalProjects = async (year, month) => {
 
 export const fetchTotalReqs = async (year, month) => {
   const response = await fetch(
-    `${process.env.REACT_APP_API_URL}/submissions/totalReqs?year=${year}&month=${month}`
+    `${process.env.REACT_APP_LOCALIP}/submissions/totalReqs?year=${year}&month=${month}`
   );
   const reqs = await response.json();
   return reqs;
@@ -40,7 +40,7 @@ export const fetchTotalReqs = async (year, month) => {
 
 export const fetchTotalBudgetEstimates = async (year, month) => {
   const response = await fetch(
-    `${process.env.REACT_APP_API_URL}/submissions/totalBudgetEstimates?year=${year}&month=${month}`
+    `${process.env.REACT_APP_LOCALIP}/submissions/totalBudgetEstimates?year=${year}&month=${month}`
   );
   const budget = await response.json();
   return budget;
@@ -48,7 +48,7 @@ export const fetchTotalBudgetEstimates = async (year, month) => {
 
 export const fetchTotalProjectsByYear = async (year) => {
   const response = await fetch(
-    `${process.env.REACT_APP_API_URL}/submissions/totalProjectsByYear?year=${year}`
+    `${process.env.REACT_APP_LOCALIP}/submissions/totalProjectsByYear?year=${year}`
   );
   const projects = await response.json();
   return projects;
@@ -56,7 +56,7 @@ export const fetchTotalProjectsByYear = async (year) => {
 
 export const fetchTotalReqsByYear = async (year) => {
   const response = await fetch(
-    `${process.env.REACT_APP_API_URL}/submissions/totalReqsByYear?year=${year}`
+    `${process.env.REACT_APP_LOCALIP}/submissions/totalReqsByYear?year=${year}`
   );
   const reqs = await response.json();
   return reqs;
@@ -64,7 +64,7 @@ export const fetchTotalReqsByYear = async (year) => {
 
 export const fetchTopAgencies = async (year, month) => {
   const response = await fetch(
-    `${process.env.REACT_APP_API_URL}/submissions/topAgencies?year=${year}&month=${month}`
+    `${process.env.REACT_APP_LOCALIP}/submissions/topAgencies?year=${year}&month=${month}`
   );
   const agencies = await response.json();
   return agencies;
@@ -72,14 +72,14 @@ export const fetchTopAgencies = async (year, month) => {
 
 export const fetchTopAgenciesByYear = async (year) => {
   const response = await fetch(
-    `${process.env.REACT_APP_API_URL}/submissions/topAgencies?year=${year}`
+    `${process.env.REACT_APP_LOCALIP}/submissions/topAgencies?year=${year}`
   );
   const agencies = await response.json();
   return agencies;
 };
 
 export const fetchTotalDivisionServices = async (service, year, month) => {
-  let url = `${process.env.REACT_APP_API_URL}/submissions/totalDivisionServicesByYear?service=${service}&year=${year}&month=${month}`;
+  let url = `${process.env.REACT_APP_LOCALIP}/submissions/totalDivisionServicesByYear?service=${service}&year=${year}&month=${month}`;
   if (month !== undefined && month !== null) {
     url += `&month=${month}`;
   }
@@ -89,7 +89,7 @@ export const fetchTotalDivisionServices = async (service, year, month) => {
 };
 
 export const fetchServiceReqs = async (service, year, month) => {
-  let url = `${process.env.REACT_APP_API_URL}/submissions/totalServiceReqsByYear?service=${service}&year=${year}&month=${month}`;
+  let url = `${process.env.REACT_APP_LOCALIP}/submissions/totalServiceReqsByYear?service=${service}&year=${year}&month=${month}`;
   if (month !== undefined && month !== null) {
     url += `&month=${month}`;
   }
@@ -99,7 +99,7 @@ export const fetchServiceReqs = async (service, year, month) => {
 };
 
 export const fetchProjectOptions = async (serviceType, year, month) => {
-  let url = `${process.env.REACT_APP_API_URL}/submissions/projectOptions?serviceType=${serviceType}&year=${year}&month=${month}`;
+  let url = `${process.env.REACT_APP_LOCALIP}/submissions/projectOptions?serviceType=${serviceType}&year=${year}&month=${month}`;
   if (month !== undefined && month !== null) {
     url += `&month=${month}`;
   }
@@ -109,7 +109,7 @@ export const fetchProjectOptions = async (serviceType, year, month) => {
 };
 
 export const fetchEventOptions = async (serviceType, year, month) => {
-  let url = `${process.env.REACT_APP_API_URL}/submissions/eventOptions?serviceType=${serviceType}&year=${year}&month=${month}`;
+  let url = `${process.env.REACT_APP_LOCALIP}/submissions/eventOptions?serviceType=${serviceType}&year=${year}&month=${month}`;
   if (month !== undefined && month !== null) {
     url += `&month=${month}`;
   }
@@ -119,7 +119,7 @@ export const fetchEventOptions = async (serviceType, year, month) => {
 };
 
 export const fetchSpecificServices = async (service, year, month) => {
-  let url = `${process.env.REACT_APP_API_URL}/submissions/specificServicesByYearAndMonth?service=${service}&year=${year}`;
+  let url = `${process.env.REACT_APP_LOCALIP}/submissions/specificServicesByYearAndMonth?service=${service}&year=${year}`;
   if (month !== undefined && month !== null) {
     url += `&month=${month}`;
   }
@@ -131,7 +131,7 @@ export const fetchSpecificServices = async (service, year, month) => {
 
 export const fetchServicesOverYear = async (service, year) => {
   const response = await fetch(
-    `${process.env.REACT_APP_API_URL}/submissions/servicesOverYear?serviceType=${service}&year=${year}`
+    `${process.env.REACT_APP_LOCALIP}/submissions/servicesOverYear?serviceType=${service}&year=${year}`
   );
   const services = await response.json();
   return services;
