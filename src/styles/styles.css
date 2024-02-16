@@ -6,14 +6,16 @@
 }
 
 /* Lv2 - Dashboard Styles - AdminDash */
+.dashboard-container {
+  padding: 0px;
+}
+
 .dashboard {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-content: center;
   background-color: var(--bgGrey-color);
-  height: 100vh;
-  width: 100%;
-  padding: 10px;
+  padding: 20px;
 }
 
 .dashboard-header {
@@ -51,16 +53,17 @@
 }
 
 .dashboard-content {
-  display: flex;
-  padding: 10px;
-  flex-direction: column;
+  /* display: flex; */
+  /* padding: 10px; */
+  /* flex-direction: column; */
   max-width: 100%;
   background-color: var(--bgGrey-color);
   color: var(--textGrey-color);
 }
 @media only screen and (max-width: 768px) {
   .dashboard-content {
-    max-width: 80%;
+    justify-items: center;
+    font-size: smaller;
   }
 }
 
@@ -72,10 +75,22 @@
 .overview-section {
   display: flex;
   justify-content: space-evenly;
+  /* width: 100%; */
   padding: 10px;
   background-color: var(--headerGrey-color);
   border-radius: 8px;
-  margin: 20px 0;
+  /* margin: 10px 0; */
+}
+
+.overview-div {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  /* width: 100%; */
+  padding: 10px;
+  background-color: var(--headerGrey-color);
+  border-radius: 8px;
+  /* margin: 10px 0; */
 }
 
 .overview-item {
@@ -110,6 +125,7 @@
 .overview-label {
   /* background-color: #171819; */
   padding-top: 10px;
+  padding-bottom: 10px;
   display: flex;
   font-size: medium;
   font-weight: bold;
@@ -118,3 +134,54 @@
   justify-content: center;
   text-align: center;
 }
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  border-radius: 5px;
+  padding: 10px;
+  background-color: var(--headerGrey-color);
+  /* gap: 10px;  */
+}
+
+.grid-item {
+  /* background-color: #f2f2f2; */
+  display: grid;
+  /* border: 1px solid #ddd; */
+  padding: 5px;
+  text-align: center;
+}
+
+.grid-title {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 8px;
+  /* color: var(--textGrey-color); */
+  font-size: calc(1px + 2vmin);
+}
+@media only screen and (max-width: 768px) {
+  .grid-title {
+    font-size: calc(2px + 2vmin);
+  }
+}
+
+.grid-value {
+  font-size: calc(4px + 2vmin);
+  color: var(--dolBlue-color);
+  text-align: center;
+}
+@media only screen and (max-width: 768px) {
+  .grid-value {
+    font-size: calc(10px + 2vmin);
+  }
+}
+
+/* Optional: style specific items */
+/* .grid-item:nth-child(3) {
+  background-color: #ccc;
+}
+
+.grid-item:nth-child(5) {
+  font-weight: bold;
+} */

@@ -287,6 +287,10 @@ const GeneralCSReqData = () => {
         setSelectedMonth={handleSetSelectedMonth}
       />
       {/* Overview Section */}
+      <div>
+        {" "}
+        <span className="overview-label">Overview</span>
+      </div>
       <div className="overview-section">
         {projectData.length > 0 ? (
           Object.entries({
@@ -318,7 +322,6 @@ const GeneralCSReqData = () => {
             style={{
               alignContent: "center",
               width: "100%",
-              maxWidth: "1500px",
               height: "100%",
               maxHeight: "1200px",
               margin: "0 auto",

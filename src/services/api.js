@@ -128,3 +128,11 @@ export const fetchSpecificServices = async (service, year, month) => {
   const services = await response.json();
   return services;
 };
+
+export const fetchServicesOverYear = async (service, year) => {
+  const response = await fetch(
+    `${process.env.REACT_APP_API_URL}/submissions/servicesOverYear?serviceType=${service}&year=${year}`
+  );
+  const services = await response.json();
+  return services;
+};

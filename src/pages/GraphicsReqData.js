@@ -7,6 +7,7 @@ import {
   fetchProjectOptions,
   fetchEventOptions,
   fetchSpecificServices,
+  fetchServicesOverYear,
 } from "../services/api";
 import { Bar } from "react-chartjs-2";
 import {
@@ -60,6 +61,7 @@ const GraphicsReqData = () => {
   const [projectOptionsData, setProjectOptionsData] = useState([]);
   const [eventOptionsData, setEventOptionsData] = useState([]);
   const [specificServicesData, setSpecificServicesData] = useState([]);
+  const [servicesOverYearData, setServicesOverYearData] = useState([]);
   const handleSetSelectedYear = useCallback((year) => {
     setSelectedYear(year);
   }, []);
@@ -76,35 +78,46 @@ const GraphicsReqData = () => {
           selectedYear.value
         ).then((data) => {
           const divisionServicesData = Array.isArray(data) ? data : [data];
-          console.log(
-            "Setting yearly divisionServicesData",
-            divisionServicesData
-          );
+          // console.log(
+          //   "Setting yearly divisionServicesData",
+          //   divisionServicesData
+          // );
           setDivisionServicesData(divisionServicesData);
         });
         fetchServiceReqs(service, selectedYear.value).then((data) => {
           const serviceReqData = Array.isArray(data) ? data : [data];
-          console.log("Setting yearly serviceReqsData", serviceReqData);
+          // console.log("Setting yearly serviceReqsData", serviceReqData);
           setServiceReqData(serviceReqData);
         });
         fetchProjectOptions(service, selectedYear.value).then((data) => {
           const projectOptionsData = Array.isArray(data) ? data : [data];
-          console.log("Setting yearly projectOptionsData", projectOptionsData);
+          // console.log("Setting yearly projectOptionsData", projectOptionsData);
           setProjectOptionsData(projectOptionsData);
         });
         fetchEventOptions(service, selectedYear.value).then((data) => {
           const eventOptionsData = Array.isArray(data) ? data : [data];
-          console.log("Setting yearly eventOptionsData", eventOptionsData);
+          // console.log("Setting yearly eventOptionsData", eventOptionsData);
           setEventOptionsData(eventOptionsData);
         });
         fetchSpecificServices(service, selectedYear.value).then((data) => {
           const specificServicesData = Array.isArray(data) ? data : [data];
-          console.log(
-            "Setting yearly specificServicesData",
-            specificServicesData
-          );
+          // console.log(
+          //   "Setting yearly specificServicesData",
+          //   specificServicesData
+          // );
           setSpecificServicesData(specificServicesData);
         });
+        fetchServicesOverYear(service.toLowerCase(), selectedYear.value).then(
+          (data) => {
+            const processedData = data.map((item) => ({
+              sumServices: item.sumServices,
+              month: item.month,
+              year: item.year,
+            }));
+            // console.log("Setting yearly servicesOverYearData", processedData);
+            setServicesOverYearData(processedData);
+          }
+        );
       } else {
         fetchTotalDivisionServices(
           service.toLowerCase(),
@@ -114,10 +127,10 @@ const GraphicsReqData = () => {
           const formattedDivisionServicesData = Array.isArray(data)
             ? data
             : [data];
-          console.log(
-            "Setting monthly divisionServicesData",
-            formattedDivisionServicesData
-          );
+          // console.log(
+          //   "Setting monthly divisionServicesData",
+          //   formattedDivisionServicesData
+          // );
           setDivisionServicesData(formattedDivisionServicesData);
         });
         fetchServiceReqs(service, selectedYear.value, selectedMonth.value).then(
@@ -125,10 +138,10 @@ const GraphicsReqData = () => {
             const formattedServiceReqsData = Array.isArray(data)
               ? data
               : [data];
-            console.log(
-              "Setting monthly serviceReqsData",
-              formattedServiceReqsData
-            );
+            // console.log(
+            //   "Setting monthly serviceReqsData",
+            //   formattedServiceReqsData
+            // );
             setServiceReqData(formattedServiceReqsData);
           }
         );
@@ -140,10 +153,10 @@ const GraphicsReqData = () => {
           const formattedProjectOptionsData = Array.isArray(data)
             ? data
             : [data];
-          console.log(
-            "Setting monthly projectOptionsData",
-            formattedProjectOptionsData
-          );
+          // console.log(
+          //   "Setting monthly projectOptionsData",
+          //   formattedProjectOptionsData
+          // );
           setProjectOptionsData(formattedProjectOptionsData);
         });
         fetchEventOptions(
@@ -152,10 +165,10 @@ const GraphicsReqData = () => {
           selectedMonth.value
         ).then((data) => {
           const formattedEventOptionsData = Array.isArray(data) ? data : [data];
-          console.log(
-            "Setting monthly eventOptionsData",
-            formattedEventOptionsData
-          );
+          // console.log(
+          //   "Setting monthly eventOptionsData",
+          //   formattedEventOptionsData
+          // );
           setEventOptionsData(formattedEventOptionsData);
         });
         fetchSpecificServices(
@@ -166,15 +179,54 @@ const GraphicsReqData = () => {
           const formattedSpecificServicesData = Array.isArray(data)
             ? data
             : [data];
-          console.log(
-            "Setting monthly SpecificServicesData",
-            formattedSpecificServicesData
-          );
+          // console.log(
+          //   "Setting monthly SpecificServicesData",
+          //   formattedSpecificServicesData
+          // );
           setSpecificServicesData(formattedSpecificServicesData);
         });
       }
     }
   }, [service, selectedYear, selectedMonth]);
+
+  useEffect(() => {
+    if (servicesOverYearData.length > 0) {
+      const monthNames = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+      ];
+
+      const labels = servicesOverYearData.map(
+        (item) => `${monthNames[item.month - 1]}`
+      );
+      const data = servicesOverYearData.map((item) => item.sumServices);
+
+      const chartData = {
+        labels,
+        datasets: [
+          {
+            label: "Project Load",
+            data,
+            backgroundColor: "rgba(8, 140, 255, 0.5)",
+            borderColor: "rgba(8, 140, 255, 0.5)",
+            borderWidth: 1,
+          },
+        ],
+      };
+
+      setdataForSelectedServicesChart(chartData);
+    }
+  }, [servicesOverYearData]);
 
   return (
     <div>
@@ -224,6 +276,45 @@ const GraphicsReqData = () => {
         ) : (
           <p>Loading services data...</p> // Or any other placeholder you prefer
         )}
+      </div>
+      <div>
+        {" "}
+        <span className="overview-label">Services</span>
+      </div>
+      <div className="grid-container">
+        {specificServicesData.length > 0 &&
+          specificServicesData[0] !== undefined &&
+          Object.entries(specificServicesData[0]).map(([serviceName, value]) =>
+            value > 0 ? (
+              <div key={serviceName} className="grid-item">
+                {/* Dynamically display service name */}
+                <span className="grid-title">{serviceName}</span>
+                <span className="grid-value">{value}</span>
+              </div>
+            ) : null
+          )}
+        {specificServicesData.length === 0 ||
+        specificServicesData[0] === undefined ? (
+          <p>No data available.</p>
+        ) : null}
+      </div>
+      <div>
+        {" "}
+        <span className="overview-label">Project Load by Month</span>
+      </div>
+      <div>
+        <Bar
+          data={dataForSelectedServicesChart}
+          options={chartOptions}
+          style={{
+            alignContent: "center",
+            width: "100%",
+            height: "100%",
+            maxHeight: "500px",
+            minHeight: "200px",
+            margin: "0 auto",
+          }}
+        />
       </div>
     </div>
   );
